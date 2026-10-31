@@ -81,7 +81,7 @@ const checkEmployeeStatus = async (): Promise<EmployeeStatusData> => {
     }
 
     const response = await fetch(
-      "http://192.168.0.191:3000/api/attendance/status",
+      "https://sandrealeesalon.onrender.com/api/attendance/status",
       {
         method: "GET",
         headers: {
@@ -520,7 +520,7 @@ export default function Training() {
     const profileImageUrl = user?.profileImage
       ? getSafeImageUrl(
           user.profileImage.startsWith("/uploads/")
-            ? `http://10.74.230.139:3000${user.profileImage}`
+            ? `https://sandrealeesalon.onrender.com${user.profileImage}`
             : user.profileImage,
         )
       : null;

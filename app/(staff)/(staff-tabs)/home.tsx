@@ -112,7 +112,7 @@ const checkEmployeeStatus = async (): Promise<EmployeeStatusData> => {
     }
 
     const response = await fetch(
-      "http://10.74.230.139:3000/api/attendance/status",
+      "https://sandrealeesalon.onrender.com/api/attendance/status",
       {
         method: "GET",
         headers: {
@@ -613,7 +613,7 @@ export default function StaffHome() {
             <Image
               source={{
                 uri: user.profileImage.startsWith("/uploads/")
-                  ? `http://10.74.230.139:3000${user.profileImage}`
+                  ? `https://sandrealeesalon.onrender.com${user.profileImage}`
                   : user.profileImage,
               }}
               style={{
@@ -659,7 +659,7 @@ export default function StaffHome() {
         <Image
           source={{
             uri: client.profileImage.startsWith("/uploads/")
-              ? `http://10.74.230.139:3000${client.profileImage}`
+              ? `https://sandrealeesalon.onrender.com${client.profileImage}`
               : client.profileImage,
           }}
           style={[
@@ -1252,7 +1252,7 @@ export default function StaffHome() {
                                 uri: entry.userId.profileImage.startsWith(
                                   "/uploads/",
                                 )
-                                  ? `http://10.74.230.139:3000${entry.userId.profileImage}`
+                                  ? `https://sandrealeesalon.onrender.com${entry.userId.profileImage}`
                                   : entry.userId.profileImage,
                               }}
                               style={styles.leaderboardAvatar}

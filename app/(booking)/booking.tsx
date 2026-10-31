@@ -1752,7 +1752,7 @@ export default function BookingScreen() {
 
       // If it's a local upload path, construct the full URL
       if (imagePath.startsWith("/uploads/")) {
-        return `http://10.74.230.139:3000${imagePath}`;
+        return `https://sandrealeesalon.onrender.com${imagePath}`;
       }
 
       return null;

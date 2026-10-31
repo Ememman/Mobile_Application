@@ -1208,7 +1208,9 @@ const ProfileScreen = () => {
         if (product.image.startsWith("http")) {
           return { uri: product.image };
         } else {
-          return { uri: `http://10.74.230.139:3000${product.image}` };
+          return {
+            uri: `https://sandrealeesalon.onrender.com${product.image}`,
+          };
         }
       }
       return product.image;
@@ -1228,7 +1230,9 @@ const ProfileScreen = () => {
         if (user.profileImage.startsWith("http")) {
           return { uri: user.profileImage };
         }
-        return { uri: `http://10.74.230.139:3000${user.profileImage}` };
+        return {
+          uri: `https://sandrealeesalon.onrender.com${user.profileImage}`,
+        };
       }
 
       // PRIORITY 3: Check AsyncStorage for custom image as fallback

@@ -246,7 +246,7 @@ const ProfileImage = ({
             return { uri: profileImageUrl };
           } else {
             // Handle relative paths
-            const baseUrl = "http://10.74.230.139:3000";
+            const baseUrl = "https://sandrealeesalon.onrender.com";
             const fullUrl = profileImageUrl.startsWith("/")
               ? `${baseUrl}${profileImageUrl}`
               : `${baseUrl}/${profileImageUrl}`;

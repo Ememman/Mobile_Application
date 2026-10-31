@@ -27,7 +27,7 @@ import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width, height } = Dimensions.get("window");
-const API_BASE_URL = "http://10.74.230.139:3000/api";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com/api";
 
 // Updated image assets with correct names
 const images = {

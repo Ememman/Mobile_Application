@@ -420,7 +420,7 @@ const ProfileImage = ({
           <Image
             source={{
               uri: imageUrl.startsWith("/uploads/")
-                ? `http://10.74.230.139:3000${imageUrl}`
+                ? `https://sandrealeesalon.onrender.com${imageUrl}`
                 : imageUrl,
             }}
             style={{
@@ -469,7 +469,7 @@ const ClientAvatar = ({
       <Image
         source={{
           uri: client.profileImage.startsWith("/uploads/")
-            ? `http://10.74.230.139:3000${client.profileImage}`
+            ? `https://sandrealeesalon.onrender.com${client.profileImage}`
             : client.profileImage,
         }}
         style={{

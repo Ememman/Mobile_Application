@@ -716,7 +716,7 @@ export interface AvailableSlotsWithStaffResponse {
   staffId?: string | null;
 }
 
-const API_BASE_URL = "http://10.74.230.139:3000/api";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com/api";
 
 const convertTimeTo24HourFormat = (timeString: string): string => {
   console.log("⏰ Processing time for API:", timeString);

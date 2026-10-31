@@ -900,7 +900,9 @@ export default function ServicesScreen() {
         if (user.profileImage.startsWith("http")) {
           return { uri: user.profileImage };
         }
-        return { uri: `http://10.74.230.139:3000${user.profileImage}` };
+        return {
+          uri: `https://sandrealeesalon.onrender.com${user.profileImage}`,
+        };
       }
 
       try {

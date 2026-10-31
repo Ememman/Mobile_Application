@@ -546,7 +546,7 @@ export interface ModuleQuiz {
 }
 
 // API Configuration
-const API_BASE_URL = "http://10.74.230.139:3000/api";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com/api";
 
 // Helper Functions
 const getToken = async (): Promise<string | null> => {

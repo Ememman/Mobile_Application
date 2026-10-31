@@ -32,7 +32,7 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 
-const API_BASE_URL = "http://10.74.230.139:3000";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 interface User {
@@ -767,7 +767,9 @@ export default function Index() {
         if (user.profileImage.startsWith("http")) {
           return { uri: user.profileImage };
         }
-        return { uri: `http://10.74.230.139:3000${user.profileImage}` };
+        return {
+          uri: `https://sandrealeesalon.onrender.com${user.profileImage}`,
+        };
       }
 
       try {

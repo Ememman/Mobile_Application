@@ -437,7 +437,7 @@ export default function StaffBookings() {
         <Image
           source={{
             uri: client.profileImage.startsWith("/uploads/")
-              ? `http://10.74.230.139:3000${client.profileImage}`
+              ? `https://sandrealeesalon.onrender.com${client.profileImage}`
               : client.profileImage,
           }}
           style={[
@@ -678,7 +678,7 @@ export default function StaffBookings() {
                           uri: selectedAppointment.selectedStylist.profileImage.startsWith(
                             "/uploads/",
                           )
-                            ? `http://10.74.230.139:3000${selectedAppointment.selectedStylist.profileImage}`
+                            ? `https://sandrealeesalon.onrender.com${selectedAppointment.selectedStylist.profileImage}`
                             : selectedAppointment.selectedStylist.profileImage,
                         }}
                         style={styles.stylistAvatar}

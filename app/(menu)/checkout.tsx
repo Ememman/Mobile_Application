@@ -32,7 +32,7 @@ type CheckoutScreenType =
   | "receiptInfo"
   | "status";
 
-const API_BASE_URL = "http://10.74.230.139:3000";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com";
 
 // Metro Manila locations data
 const METRO_MANILA_LOCATIONS = {
@@ -681,7 +681,9 @@ export default function CheckoutScreen() {
       if (userData.profileImage.startsWith("http")) {
         return { uri: userData.profileImage };
       }
-      return { uri: `http://10.74.230.139:3000${userData.profileImage}` };
+      return {
+        uri: `https://sandrealeesalon.onrender.com${userData.profileImage}`,
+      };
     }
 
     // Fallback to dicebear avatar or default image

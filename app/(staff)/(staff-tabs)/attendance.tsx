@@ -93,7 +93,7 @@ const checkEmployeeStatus = async (): Promise<EmployeeStatusData> => {
 
     // If no stored state, check with the server
     const response = await fetch(
-      "http://10.74.230.139:3000/api/attendance/status",
+      "https://sandrealeesalon.onrender.com/api/attendance/status",
       {
         method: "GET",
         headers: {
@@ -1040,7 +1040,7 @@ export default function Attendance() {
             <Image
               source={{
                 uri: user.profileImage.startsWith("/uploads/")
-                  ? `http://10.74.230.139:3000${user.profileImage}`
+                  ? `https://sandrealeesalon.onrender.com${user.profileImage}`
                   : user.profileImage,
               }}
               style={{

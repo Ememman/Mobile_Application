@@ -24,7 +24,7 @@ import { useFonts } from "expo-font";
 import { apiClient, Cart, CartItem, Product } from "@/app/api/apiClient";
 import { SvgUri } from "react-native-svg";
 
-const API_BASE_URL = "http://10.74.230.139:3000";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com";
 const { width: screenWidth } = Dimensions.get("window");
 
 interface User {

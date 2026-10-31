@@ -1,4 +1,4 @@
-// Products.tsx (Index.tsx in products folder)
+// Products.tsx - COMPLETELY FIXED VERSION
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Image,
@@ -31,7 +31,7 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 
-const API_BASE_URL = "http://10.74.230.139:3000";
+const API_BASE_URL = "https://sandrealeesalon.onrender.com";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 interface User {
@@ -60,6 +60,13 @@ interface NotificationItemWithGesture extends Notification {
   translateX: Animated.Value;
   isSwiping: boolean;
 }
+
+// Default rating object for products without ratings
+const DEFAULT_RATING = {
+  average: 0,
+  totalRaters: 0,
+  breakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+};
 
 export default function ProductsScreen() {
   const router = useRouter();
@@ -533,7 +540,7 @@ export default function ProductsScreen() {
     }
   };
 
-  // Apply filters and search function
+  // FIXED: Apply filters and search function with safe rating handling
   const applyFiltersAndSearch = useCallback(() => {
     let result = [...products];
 
@@ -556,10 +563,15 @@ export default function ProductsScreen() {
       });
     }
 
+    // FIXED: Safe rating filter with null check
     if (selectedRating.length > 0) {
       result = result.filter((product) => {
+        // Check if rating exists before accessing average
+        if (!product.rating || product.rating.average === undefined) {
+          return false; // Products without ratings don't match rating filters
+        }
+
         return selectedRating.some((rating) => {
-          // FIXED: Access rating.average instead of rating directly
           if (rating === "4+ stars") return product.rating.average >= 4;
           if (rating === "3+ stars") return product.rating.average >= 3;
           return false;
@@ -610,36 +622,35 @@ export default function ProductsScreen() {
     }
   }, [isLoggedIn, user?.isGuest, fetchNotificationsWithRetry]);
 
+  // FIXED: fetchData with safe rating initialization
   const fetchData = async () => {
     try {
       setLoading(true);
       const productsResponse = await apiClient.getAllProducts();
       if (productsResponse.success) {
-        setProducts(productsResponse.data);
+        // FIXED: Ensure all products have a valid rating object
+        const productsWithValidRating = productsResponse.data.map(
+          (product) => ({
+            ...product,
+            rating: product.rating || DEFAULT_RATING,
+          }),
+        );
+
+        setProducts(productsWithValidRating);
 
         // Enhanced debug logging
         console.log(
           "📦 ALL PRODUCTS DATA:",
-          productsResponse.data.map((p) => ({
+          productsWithValidRating.map((p) => ({
             id: p._id,
             name: p.name,
-            image: p.image,
-            hasImage: !!p.image,
-            category: p.category,
+            hasRating: !!p.rating,
+            ratingAverage: p.rating?.average,
+            ratingTotal: p.rating?.totalRaters,
             price: p.price,
-            rating: p.rating,
-            inStock: p.inStock, // Stock information
+            inStock: p.inStock,
           })),
         );
-
-        // Log available images
-        console.log("🖼️ AVAILABLE IMAGE IMPORTS:", {
-          mask: images.mask,
-          // Check if these images exist in your constants
-          shampoo: images.shampoo,
-          sulfate: images.sulfate,
-          keratin: images.keratin,
-        });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -741,7 +752,6 @@ export default function ProductsScreen() {
       productName.includes("sulfate") ||
       productName.includes("conditioner")
     ) {
-      // Check if shampoo image exists, otherwise use mask
       return images.sulfate || images.mask;
     } else if (productName.includes("shampoo")) {
       return images.shampoo || images.mask;
@@ -777,7 +787,9 @@ export default function ProductsScreen() {
         if (user.profileImage.startsWith("http")) {
           return { uri: user.profileImage };
         }
-        return { uri: `http://10.74.230.139:3000${user.profileImage}` };
+        return {
+          uri: `https://sandrealeesalon.onrender.com${user.profileImage}`,
+        };
       }
 
       // PRIORITY 2: Check AsyncStorage for custom image as fallback
@@ -1049,10 +1061,13 @@ export default function ProductsScreen() {
     );
   };
 
-  // UPDATED: ProductCard component with stock display
+  // FIXED: ProductCard component with safe rating handling
   const ProductCard = ({ item }: { item: Product }) => {
-    // Calculate star rating display
-    const starRating = apiClient.getStarRating(item.rating.average);
+    // Safe star rating calculation with fallback
+    const starRating =
+      item.rating && item.rating.average !== undefined
+        ? apiClient.getStarRating(item.rating.average)
+        : { full: 0, half: false, empty: 5 }; // Default for no rating
 
     return (
       <TouchableOpacity
@@ -1104,7 +1119,7 @@ export default function ProductsScreen() {
             </TouchableOpacity>
 
             <View style={styles.productRating}>
-              {/* FIXED: Use the star rating calculation */}
+              {/* FIXED: Safe star rating display */}
               {Array.from({ length: starRating.full }).map((_, index) => (
                 <Ionicons
                   key={`full-${index}`}
@@ -1132,7 +1147,9 @@ export default function ProductsScreen() {
                   style={{ marginRight: 2 }}
                 />
               ))}
-              <Text style={styles.ratingText}>({item.rating.totalRaters})</Text>
+              <Text style={styles.ratingText}>
+                ({item.rating?.totalRaters || 0})
+              </Text>
             </View>
           </View>
         </View>
@@ -1566,7 +1583,7 @@ export default function ProductsScreen() {
         </View>
       </Modal>
 
-      {/* Product Detail Modal */}
+      {/* Product Detail Modal - FIXED with safe rating handling */}
       <Modal
         visible={productDetailVisible}
         animationType="slide"
@@ -1625,8 +1642,29 @@ export default function ProductsScreen() {
                   </View>
 
                   <View style={styles.detailRating}>
-                    {/* FIXED: Use the star rating calculation */}
+                    {/* FIXED: Safe rating display with fallback */}
                     {(() => {
+                      // Safe check for rating existence
+                      if (
+                        !selectedProduct.rating ||
+                        selectedProduct.rating.average === undefined
+                      ) {
+                        return (
+                          <>
+                            {Array.from({ length: 5 }).map((_, index) => (
+                              <Ionicons
+                                key={`empty-${index}`}
+                                name="star-outline"
+                                size={16}
+                                color="#FFD700"
+                                style={{ marginRight: 2 }}
+                              />
+                            ))}
+                            <Text style={styles.detailRatingText}>(0)</Text>
+                          </>
+                        );
+                      }
+
                       const starRating = apiClient.getStarRating(
                         selectedProduct.rating.average,
                       );
@@ -1664,7 +1702,7 @@ export default function ProductsScreen() {
                             ),
                           )}
                           <Text style={styles.detailRatingText}>
-                            ({selectedProduct.rating.totalRaters})
+                            ({selectedProduct.rating.totalRaters || 0})
                           </Text>
                         </>
                       );
