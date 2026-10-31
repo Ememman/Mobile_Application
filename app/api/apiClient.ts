@@ -1213,6 +1213,71 @@ const validateAndCleanRatingCategories = (
 };
 
 export const apiClient = {
+  // ==================== PROMO & DISCOUNT METHODS ====================
+  validatePromo: async (
+    code: string,
+    amount: number = 0,
+    targetType: "all" | "products" | "services" = "all"
+  ): Promise<{
+    success: boolean;
+    message?: string;
+    data?: {
+      code: string;
+      description: string;
+      discountType: string;
+      discountValue: number;
+      discountAmount: number;
+      originalAmount: number;
+      finalAmount: number;
+    };
+  }> => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_BASE_URL}/promos/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ code, amount, targetType }),
+      });
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to validate promo" };
+    }
+  },
+
+  getActivePromos: async (): Promise<ApiResponse<any[]>> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/promos/active`);
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, data: [] };
+    }
+  },
+
+  // ==================== RESCHEDULE BOOKING ====================
+  rescheduleBooking: async (
+    bookingId: string,
+    preferredDate: string,
+    preferredTime: string,
+    reason?: string
+  ): Promise<ApiResponse<Booking>> => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/reschedule`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ preferredDate, preferredTime, reason }),
+      });
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to reschedule booking", data: null as any };
+    }
+  },
   // ==================== AVAILABILITY & STAFF METHODS ====================
 
   /**
