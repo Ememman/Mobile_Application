@@ -20,6 +20,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
+import mobileWebSocketService from "@/app/services/webSocketService";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import { useFonts } from "expo-font";
@@ -602,6 +603,7 @@ export default function ProductsScreen() {
     const loadData = async () => {
       await fetchData();
       await checkAuthStatus();
+      mobileWebSocketService.connect();
     };
     loadData();
   }, []);
@@ -614,6 +616,9 @@ export default function ProductsScreen() {
   useEffect(() => {
     if (isLoggedIn && !user?.isGuest) {
       fetchNotificationsWithRetry();
+      if (user?.id) {
+        mobileWebSocketService.joinMobileClient(user.id, user.role || "customer");
+      }
     } else {
       // Clear notifications if user logs out or is guest
       setNotifications([]);
@@ -1788,6 +1793,41 @@ export default function ProductsScreen() {
             colors={["#619AE4"]}
           />
         }>
+        {/* Salon Promotional Deals Banner */}
+        <View
+          style={{
+            marginHorizontal: 16,
+            marginTop: 10,
+            marginBottom: 6,
+            padding: 12,
+            borderRadius: 12,
+            backgroundColor: "rgba(97, 154, 228, 0.15)",
+            borderWidth: 1,
+            borderColor: "rgba(97, 154, 228, 0.4)",
+            flexDirection: "row",
+            alignItems: "center",
+          }}>
+          <View
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              backgroundColor: "#619AE4",
+              justifyContent: "center",
+              alignItems: "center",
+              marginRight: 10,
+            }}>
+            <Feather name="tag" size={18} color="#FFFFFF" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: "#FFFFFF", fontWeight: "700", fontSize: 13, marginBottom: 2 }}>
+              Active Promo: WELCOME10
+            </Text>
+            <Text style={{ color: "#9DB2CE", fontSize: 11 }}>
+              Get 10% off • Use code at checkout!
+            </Text>
+          </View>
+        </View>
         {loading ? (
           <ActivityIndicator
             size="large"
