@@ -25,6 +25,7 @@ import { icons } from "@/constants/icons";
 import { useFonts } from "expo-font";
 import { apiClient, Service, Product, Notification } from "@/app/api/apiClient";
 import Toast from "react-native-toast-message";
+import mobileWebSocketService from "@/app/services/webSocketService";
 import { SvgUri } from "react-native-svg";
 import {
   PanGestureHandler,
@@ -1349,6 +1350,7 @@ export default function Index() {
   useEffect(() => {
     fetchData();
     checkAuthStatus();
+    mobileWebSocketService.connect();
   }, []);
 
   // Separate useEffect for notifications that depends on auth status
@@ -1356,6 +1358,9 @@ export default function Index() {
     if (isLoggedIn && !user?.isGuest) {
       fetchNotificationsWithRetry();
       checkUpcomingAppointments();
+      if (user?.id) {
+        mobileWebSocketService.joinMobileClient(user.id, user.role || "customer");
+      }
     } else {
       // Clear notifications if user logs out or is guest
       setNotifications([]);

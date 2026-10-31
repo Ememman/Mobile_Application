@@ -533,6 +533,52 @@ export default function CheckoutScreen() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedBarangay, setSelectedBarangay] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<any>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
+
+  const handleApplyPromo = async () => {
+    if (!promoCodeInput.trim()) return;
+    try {
+      setValidatingPromo(true);
+      const res = await apiClient.validatePromo(
+        promoCodeInput.trim(),
+        cartData?.totalAmount || 0,
+        "products"
+      );
+      if (res && res.success && res.data) {
+        setAppliedPromo(res.data);
+        Toast.show({
+          type: "success",
+          text1: "Promo Applied!",
+          text2: `You saved ₱${res.data.discountAmount.toFixed(2)}!`,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Promo",
+          text2: res?.message || "Promo code could not be applied.",
+        });
+      }
+    } catch (err: any) {
+      Toast.show({
+        type: "error",
+        text1: "Promo Error",
+        text2: err.message || "Failed to validate promo code.",
+      });
+    } finally {
+      setValidatingPromo(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCodeInput("");
+    Toast.show({
+      type: "info",
+      text1: "Promo Removed",
+    });
+  };
   const [showCityModal, setShowCityModal] = useState(false);
   const [showBarangayModal, setShowBarangayModal] = useState(false);
 
@@ -810,6 +856,7 @@ export default function CheckoutScreen() {
         contactNumber,
         specialInstructions: specialInstructions || "",
         customerNotes: "",
+        promoCode: appliedPromo?.code || undefined,
       };
 
       // Add delivery address as an object if delivery type is selected
@@ -961,7 +1008,10 @@ export default function CheckoutScreen() {
 
       // Calculate total amount (numeric only, no currency symbol)
       const shippingFee = deliveryType === "delivery" ? 100 : 0;
-      const totalAmount = cartData.totalAmount + shippingFee;
+      const totalAmount = Math.max(
+        0,
+        cartData.totalAmount + shippingFee - (appliedPromo?.discountAmount || 0)
+      );
 
       // Get current date in YYYY-MM-DD format
       const currentDate = new Date().toISOString().split("T")[0];
@@ -1526,7 +1576,8 @@ export default function CheckoutScreen() {
   // ORDER SUMMARY SCREEN - UPDATED TO SHOW FORMATTED ADDRESS
   const OrderSummaryScreen = () => {
     const shippingFee = deliveryType === "delivery" ? 100 : 0;
-    const total = cartData.totalAmount + shippingFee;
+    const discountAmount = appliedPromo?.discountAmount || 0;
+    const total = Math.max(0, cartData.totalAmount + shippingFee - discountAmount);
 
     return (
       <View style={styles.checkoutScreenContainer}>
@@ -1638,6 +1689,64 @@ export default function CheckoutScreen() {
               )}
             </View>
 
+            {/* Promo Code Section */}
+            <View style={[styles.pricingCard, styles.cardShadow, { marginBottom: 12 }]}>
+              <Text style={styles.pricingTitle}>Promo Code</Text>
+              <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+                <TextInput
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#2A2A2E",
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    color: "#FFFFFF",
+                    fontSize: 14,
+                    borderWidth: 1,
+                    borderColor: appliedPromo ? "#10B981" : "#3D87E9",
+                  }}
+                  placeholder="ENTER PROMO CODE"
+                  placeholderTextColor="#6B7280"
+                  value={promoCodeInput}
+                  onChangeText={(text) => setPromoCodeInput(text.toUpperCase())}
+                  editable={!appliedPromo && !validatingPromo}
+                  autoCapitalize="characters"
+                />
+                {appliedPromo ? (
+                  <TouchableOpacity
+                    onPress={handleRemovePromo}
+                    style={{
+                      backgroundColor: "#EF4444",
+                      borderRadius: 8,
+                      paddingHorizontal: 16,
+                      justifyContent: "center",
+                    }}>
+                    <Text style={{ color: "#FFF", fontWeight: "600" }}>Remove</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleApplyPromo}
+                    disabled={validatingPromo || !promoCodeInput.trim()}
+                    style={{
+                      backgroundColor: "#3D87E9",
+                      borderRadius: 8,
+                      paddingHorizontal: 16,
+                      justifyContent: "center",
+                      opacity: !promoCodeInput.trim() || validatingPromo ? 0.6 : 1,
+                    }}>
+                    <Text style={{ color: "#FFF", fontWeight: "600" }}>
+                      {validatingPromo ? "..." : "Apply"}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              {appliedPromo && (
+                <Text style={{ color: "#10B981", fontSize: 12, marginTop: 6 }}>
+                  ✓ Code {appliedPromo.code} applied! Saved ₱{appliedPromo.discountAmount.toFixed(2)}
+                </Text>
+              )}
+            </View>
+
             {/* Pricing Section */}
             <View style={[styles.pricingCard, styles.cardShadow]}>
               <Text style={styles.pricingTitle}>Price Details</Text>
@@ -1655,6 +1764,16 @@ export default function CheckoutScreen() {
                   ₱{shippingFee.toFixed(2)}
                 </Text>
               </View>
+              {appliedPromo && (
+                <View style={styles.pricingRow}>
+                  <Text style={[styles.pricingLabel, { color: "#10B981" }]}>
+                    Promo ({appliedPromo.code})
+                  </Text>
+                  <Text style={[styles.pricingValue, { color: "#10B981" }]}>
+                    -₱{appliedPromo.discountAmount.toFixed(2)}
+                  </Text>
+                </View>
+              )}
               <View style={styles.pricingDivider} />
               <View style={styles.pricingRow}>
                 <Text style={styles.pricingTotalLabel}>Total Amount</Text>
